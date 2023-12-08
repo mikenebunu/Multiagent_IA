@@ -88,6 +88,7 @@ class ReflexAgent(Agent):
         score += sum(reciprocalFoodDistances) - sum(reciprocalGhostDistances)
 
         return score
+    # test
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
