@@ -74,18 +74,30 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        score = successorGameState.getScore()
+        score = 0
 
-        # Calculate distances to food and ghosts
-        foodDistances = [manhattanDistance(newPos, food) for food in newFood.asList()]
-        ghostDistances = [manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates]
+        allRemainingFood = newFood.asList() # all remaining food as list
+        ghostPos = successorGameState.getGhostPositions()  # get the ghost position
 
-        # Consider reciprocal of distances to prioritize actions
-        reciprocalFoodDistances = [1.0 / distance if distance != 0 else float('inf') for distance in foodDistances]
-        reciprocalGhostDistances = [1.0 / (distance + 1) for distance in ghostDistances]  # Add 1 to avoid division by zero
+        manhattanFoodDist = []
+        for food in allRemainingFood:
+            manhattanFoodDist.append(manhattanDistance(food, newPos)) # distance between all remaining food and pacman
 
-        # Update the score based on features and weights
-        score += sum(reciprocalFoodDistances) - sum(reciprocalGhostDistances)
+        manhattanGhostDist = []
+        for ghost in ghostPos:
+            manhattanGhostDist.append(manhattanDistance(ghost, newPos)) # distance between ghosts and pacman
+
+        if currentGameState.getPacmanPosition() == newPos:
+            return -10000
+        
+        for ghostDistance in manhattanGhostDist:
+            if ghostDistance < 2:
+                return -10000 # if ghost is approaching 
+        
+        if len(manhattanFoodDist) == 0:
+            return 10000 # if there s no food left
+
+        score = 1000 / sum(manhattanFoodDist) + 1000 / len(manhattanFoodDist) + successorGameState.getScore()
 
         return score
 
