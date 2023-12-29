@@ -137,30 +137,52 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState: GameState):
-        """
-        Returns the minimax action from the current gameState using self.depth
-        and self.evaluationFunction.
+        return self.gameValue(gameState, 0, 0)[1]
 
-        Here are some method calls that might be useful when implementing minimax.
+    def gameValue(self, gameState, index, adancime):
+        if gameState.isWin() or gameState.isLose() or adancime == self.depth:
+            return self.evaluationFunction(gameState), ""
 
-        gameState.getLegalActions(agentIndex):
-        Returns a list of legal actions for an agent
-        agentIndex=0 means Pacman, ghosts are >= 1
+        if index > 0:  # there is a ghost
+            return self.mini(gameState, index, adancime)
+        else:
+            return self.maxi(gameState, index, adancime)
 
-        gameState.generateSuccessor(agentIndex, action):
-        Returns the successor game state after an agent takes an action
+    def mini(self, gameState, index, adancime):
+        minim = float('inf')
+        maxim = ""
+        legalMoves = gameState.getLegalActions(index)
+        for moves in legalMoves:
+            successor = gameState.generateSuccessor(index, moves)
+            indexState = index + 1
+            adancimeState = adancime
+            # if is Pacman
+            if indexState == gameState.getNumAgents():
+                indexState = 0
+                adancimeState = adancimeState + 1
+            current_value = self.gameValue(successor, indexState, adancimeState)
+            if current_value[0] < minim:
+                minim = current_value[0]
+                maxim = moves
+        return minim, maxim
 
-        gameState.getNumAgents():
-        Returns the total number of agents in the game
-
-        gameState.isWin():
-        Returns whether or not the game state is a winning state
-
-        gameState.isLose():
-        Returns whether or not the game state is a losing state
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+    def maxi(self, gameState, index, adancime):
+        minim = ""
+        maxim = float('-inf')
+        legalMoves = gameState.getLegalActions(index)
+        for moves in legalMoves:
+            successor = gameState.generateSuccessor(index, moves)
+            indexState = index + 1
+            adancimeState = adancime
+            # if is Pacman
+            if indexState == gameState.getNumAgents():
+                indexState = 0
+                adancimeState = adancimeState + 1
+            current_value = self.gameValue(successor, indexState, adancimeState)
+            if current_value[0] > maxim:
+                maxim = current_value[0]
+                minim = moves
+        return maxim, minim
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
