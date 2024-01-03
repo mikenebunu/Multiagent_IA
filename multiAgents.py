@@ -193,8 +193,62 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def alpha_beta_pruning(gameState, index, adancime, alpha, beta):
+            if gameState.isWin() or gameState.isLose() or adancime == self.depth:
+                return self.evaluationFunction(gameState), ""
+
+            if index > 0:  # there is a ghost
+                return min_value(gameState, index, adancime, alpha, beta)
+            else:
+                return max_value(gameState, index, adancime, alpha, beta)
+
+        def max_value(gameState, index, adancime, alpha, beta):
+            maxim = float('-inf')
+            maxim_move = ""
+            legalMoves = gameState.getLegalActions(index)
+            for move in legalMoves:
+                successor = gameState.generateSuccessor(index, move)
+                indexState = index + 1
+                adancimeState = adancime
+                # if is Pacman
+                if indexState == gameState.getNumAgents():
+                    indexState = 0
+                    adancimeState = adancimeState + 1
+                current_value, _ = alpha_beta_pruning(successor, indexState, adancimeState, alpha, beta)
+                if current_value > maxim:
+                    maxim = current_value
+                    maxim_move = move
+                if maxim > beta:
+                    return maxim, maxim_move
+                alpha = max(alpha, maxim)
+            return maxim, maxim_move
+
+        def min_value(gameState, index, adancime, alpha, beta):
+            minim = float('inf')
+            minim_move = ""
+            legalMoves = gameState.getLegalActions(index)
+            for move in legalMoves:
+                successor = gameState.generateSuccessor(index, move)
+                indexState = index + 1
+                adancimeState = adancime
+                # if is Pacman
+                if indexState == gameState.getNumAgents():
+                    indexState = 0
+                    adancimeState = adancimeState + 1
+                current_value, _ = alpha_beta_pruning(successor, indexState, adancimeState, alpha, beta)
+                if current_value < minim:
+                    minim = current_value
+                    minim_move = move
+                if minim < alpha:
+                    return minim, minim_move
+                beta = min(beta, minim)
+            return minim, minim_move
+
+        alpha = float('-inf')
+        beta = float('inf')
+        _, action = alpha_beta_pruning(gameState, 0, 0, alpha, beta)
+        return action
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
