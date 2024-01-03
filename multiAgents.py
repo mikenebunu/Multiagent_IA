@@ -262,8 +262,52 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def expectimax(gameState, index, adancime):
+            if gameState.isWin() or gameState.isLose() or adancime == self.depth:
+                return self.evaluationFunction(gameState), ""
+
+            if index > 0:  # there is a ghost
+                return exp_value(gameState, index, adancime)
+            else:
+                return max_value(gameState, index, adancime)
+
+        def max_value(gameState, index, adancime):
+            maxim = float('-inf')
+            maxim_move = ""
+            legalMoves = gameState.getLegalActions(index)
+            for move in legalMoves:
+                successor = gameState.generateSuccessor(index, move)
+                indexState = index + 1
+                adancimeState = adancime
+                # if is Pacman
+                if indexState == gameState.getNumAgents():
+                    indexState = 0
+                    adancimeState = adancimeState + 1
+                current_value, _ = expectimax(successor, indexState, adancimeState)
+                if current_value > maxim:
+                    maxim = current_value
+                    maxim_move = move
+            return maxim, maxim_move
+
+        def exp_value(gameState, index, adancime):
+            legalMoves = gameState.getLegalActions(index)
+            exp_val = 0
+            for move in legalMoves:
+                successor = gameState.generateSuccessor(index, move)
+                indexState = index + 1
+                adancimeState = adancime
+                # if is Pacman
+                if indexState == gameState.getNumAgents():
+                    indexState = 0
+                    adancimeState = adancimeState + 1
+                prob = 1.0 / len(legalMoves)  # Uniform probability for random ghosts
+                current_value, _ = expectimax(successor, indexState, adancimeState)
+                exp_val += prob * current_value
+            return exp_val, ""
+
+        _, action = expectimax(gameState, 0, 0)
+        return action
+
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
